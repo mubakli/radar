@@ -66,7 +66,16 @@ create one database table or class per term.
 
 ### Story formation
 
-6. Story membership is reversible and carries method/version information.
+6. A Story has its own stable identity and remains a mutable hypothesis over
+   Source Items; no Source Item locator or derived canonical content becomes the
+   Story's identity.
+6a. Each Source Item has at most one current Story membership. Membership is
+    reversible and records its creation method, method version, human-readable
+    reason, and creation time.
+6b. Manual merge moves current memberships into one resulting Story; manual
+    split gives the selected Source Item its own current Story. Corrections are
+    distinguishable from automatic grouping, auditable, and idempotent, and
+    never delete or rewrite a Source Item or its provenance.
 7. Exact duplicates, near-duplicates, and items about the same event are
    different relationships and must not be conflated.
 8. Different interpretations or materially different claims about one event may
@@ -114,16 +123,18 @@ create one database table or class per term.
 
 ### Finite daily review
 
-24. A daily brief is a bounded, date-scoped view of observed Source Items; items
-    outside its date and configured limit are not silently included.
-25. The initial brief order is deterministic: Source priority first, then the
-    reported publication time, with observation time used when publication time
-    is absent.
+24. A daily brief is a bounded, date-scoped view of Stories with contributing
+    Source Items observed or published in that date; Stories outside its date
+    and configured limit are not silently included.
+25. The initial brief order is deterministic: the highest-priority contributing
+    Source first, then the reported publication time, with observation time used
+    when publication time is absent.
 26. `read`, `important`, `saved`, and `not relevant` are explicit item feedback
     states. Repeating an action is idempotent, and feedback remains attached to
     the observed item when the same daily brief is reopened.
-27. A brief is complete only when every presented item is marked `read` or
-    `not relevant`; saving or marking an item important does not imply review.
+27. A brief is complete only when the feedback-bearing item for every presented
+    Story is marked `read` or `not relevant`; saving or marking it important does
+    not imply review.
 
 ### AI-derived results
 

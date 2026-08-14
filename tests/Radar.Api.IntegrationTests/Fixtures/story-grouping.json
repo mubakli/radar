@@ -1,0 +1,31 @@
+[
+  { "id": "21000000-0000-0000-0000-000000000001", "source": "Postgres Weekly", "title": "PostgreSQL 18.1 fixes planner regressions", "url": "https://postgresql.org/about/news/postgresql-181-released/", "expectedGroup": "exact-url" },
+  { "id": "21000000-0000-0000-0000-000000000002", "source": "Database Journal", "title": "PostgreSQL 18.1 maintenance release", "url": "https://postgresql.org/about/news/postgresql-181-released/", "expectedGroup": "exact-url" },
+  { "id": "21000000-0000-0000-0000-000000000003", "source": "Kubernetes Blog", "title": "Kubernetes v1.34 is available", "url": "https://kubernetes.io/blog/2026/08/14/kubernetes-v1-34/?utm_source=weekly", "expectedGroup": "canonical-equivalent" },
+  { "id": "21000000-0000-0000-0000-000000000004", "source": "Cloud Native News", "title": "Kubernetes 1.34 release coverage", "url": "https://KUBERNETES.io/blog/2026/08/14/kubernetes-v1-34", "expectedGroup": "canonical-equivalent" },
+  { "id": "21000000-0000-0000-0000-000000000005", "source": "Rust Project", "title": "Rust 1.90.0: Async closures stabilize!", "url": "https://rust.test/releases/1-90", "expectedGroup": "normalized-title" },
+  { "id": "21000000-0000-0000-0000-000000000006", "source": "Compiler Notes", "title": "  RUST 1.90.0 - async closures stabilize  ", "url": "https://compiler.test/rust-190", "expectedGroup": "normalized-title" },
+  { "id": "21000000-0000-0000-0000-000000000007", "source": "Container News", "title": "Kubernetes 1.34 fixes API server regressions", "url": "https://container.test/kubernetes-134-fixes", "expectedGroup": "kubernetes-134-fix" },
+  { "id": "21000000-0000-0000-0000-000000000008", "source": "Container News", "title": "Kubernetes 1.35 fixes API server regressions", "url": "https://container.test/kubernetes-135-fixes", "expectedGroup": "kubernetes-135-fix" },
+
+  { "id": "21000000-0000-0000-0000-000000000009", "source": "Tech Daily", "title": "POSTGRESQL 18.2 PERFORMANCE PATCH", "url": "https://case.test/pg182-a", "expectedGroup": "case-insensitive" },
+  { "id": "21000000-0000-0000-0000-000000000010", "source": "DB Digest", "title": "postgresql 18.2 performance patch", "url": "https://case.test/pg182-b", "expectedGroup": "case-insensitive" },
+
+  { "id": "21000000-0000-0000-0000-000000000011", "source": "Release Watch", "title": "PostgreSQL 19 Released", "url": "https://punct.test/pg19-a", "expectedGroup": "punctuation-norm" },
+  { "id": "21000000-0000-0000-0000-000000000012", "source": "Release Watch", "title": "PostgreSQL 19: Released!", "url": "https://punct.test/pg19-b", "expectedGroup": "punctuation-norm" },
+
+  { "id": "21000000-0000-0000-0000-000000000013", "source": "Go Weekly", "title": "  Go  1.22  introduces  module  workspaces  ", "url": "https://whitespace.test/go122-a", "expectedGroup": "whitespace-norm" },
+  { "id": "21000000-0000-0000-0000-000000000014", "source": "Go Blog", "title": "Go 1.22 introduces module workspaces", "url": "https://whitespace.test/go122-b", "expectedGroup": "whitespace-norm" },
+
+  { "id": "21000000-0000-0000-0000-000000000015", "source": "Docker Weekly", "title": "Docker 28.0 introduces new build system", "url": "https://version.test/docker280", "expectedGroup": "docker-28-0" },
+  { "id": "21000000-0000-0000-0000-000000000016", "source": "Docker Weekly", "title": "Docker 28.1 introduces new build system", "url": "https://version.test/docker281", "expectedGroup": "docker-28-1" },
+
+  { "id": "21000000-0000-0000-0000-000000000017", "source": "Node Weekly", "title": "Node.js 24 LTS is now available", "url": "https://numeric.test/node24", "expectedGroup": "node-24" },
+  { "id": "21000000-0000-0000-0000-000000000018", "source": "Node Weekly", "title": "Node.js 22 LTS is now available", "url": "https://numeric.test/node22", "expectedGroup": "node-22" },
+
+  { "id": "21000000-0000-0000-0000-000000000019", "source": "Short A", "title": "PG18 released", "url": "https://short.test/pg18-a", "expectedGroup": "short-a" },
+  { "id": "21000000-0000-0000-0000-000000000020", "source": "Short B", "title": "PG18 released", "url": "https://short.test/pg18-b", "expectedGroup": "short-b" },
+
+  { "id": "21000000-0000-0000-0000-000000000021", "source": "Collision A", "title": "C++ 23 is officially released today", "url": "https://collision.test/cpp23", "expectedGroup": "collision-a" },
+  { "id": "21000000-0000-0000-0000-000000000022", "source": "Collision B", "title": "C 23 is officially released today", "url": "https://collision.test/c23", "expectedGroup": "collision-b" }
+]

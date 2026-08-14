@@ -46,15 +46,22 @@ public static class SeedData
             db.Stories.Add(story);
         }
 
-        var membershipExists = await db.StorySourceItems.AnyAsync(x => x.StoryId == StoryId && x.SourceItemId == SourceItemId, cancellationToken);
-        if (!membershipExists)
+        var membership = await db.StorySourceItems.SingleOrDefaultAsync(x => x.StoryId == StoryId && x.SourceItemId == SourceItemId, cancellationToken);
+        if (membership is null)
         {
-            db.StorySourceItems.Add(new StorySourceItem
+            membership = new StorySourceItem
             {
                 StoryId = StoryId, SourceItemId = SourceItemId,
                 MembershipMethod = "fixture",
-                MembershipReason = "The development fixture explicitly assigns this observed item to the example Story."
-            });
+                MembershipMethodVersion = "fixture-v1",
+                MembershipReason = "The development fixture explicitly assigns this observed item to the example Story.",
+                CreatedAt = new DateTimeOffset(2026, 8, 14, 9, 0, 0, TimeSpan.Zero)
+            };
+            db.StorySourceItems.Add(membership);
+        }
+        else if (membership.MembershipMethod == "fixture")
+        {
+            membership.MembershipMethodVersion = "fixture-v1";
         }
 
         await db.SaveChangesAsync(cancellationToken);

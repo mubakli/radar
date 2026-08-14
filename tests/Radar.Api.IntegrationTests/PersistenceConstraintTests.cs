@@ -147,6 +147,6 @@ public sealed class PersistenceConstraintTests : IAsyncLifetime
     private static StorySourceItem NewMembership(Guid storyId, Guid sourceItemId) => new()
     {
         StoryId = storyId, SourceItemId = sourceItemId,
-        MembershipMethod = "test", MembershipReason = "test"
+        MembershipMethod = "test", MembershipMethodVersion = "test-v1", MembershipReason = "test", CreatedAt = DateTimeOffset.UtcNow
     };
 }

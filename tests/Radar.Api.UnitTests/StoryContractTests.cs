@@ -17,9 +17,9 @@ public sealed class StoryContractTests
     public void Story_detail_contract_keeps_original_locator_and_membership_reason()
     {
         var response = new StoryDetailResponse(
-            Guid.NewGuid(), "Title", "Summary", DateTimeOffset.UtcNow,
-            [new StorySourceItemResponse(Guid.NewGuid(), "Item", "https://example.test/item", DateTimeOffset.UtcNow,
-                "fixture", "explicit fixture assignment", new SourceResponse(Guid.NewGuid(), "Source", "fixture://source"))]);
+             Guid.NewGuid(), "Title", "Summary", DateTimeOffset.UtcNow,
+             [new StorySourceItemResponse(Guid.NewGuid(), "Item", "https://example.test/item", DateTimeOffset.UtcNow,
+                 "fixture", "fixture-v1", "explicit fixture assignment", new SourceResponse(Guid.NewGuid(), "Source", "fixture://source"))], []);
 
         Assert.Equal("https://example.test/item", response.SourceItems[0].CanonicalLocator);
         Assert.Equal("explicit fixture assignment", response.SourceItems[0].MembershipReason);

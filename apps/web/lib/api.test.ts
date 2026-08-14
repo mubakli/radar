@@ -12,7 +12,7 @@ describe("story API client", () => {
 
 describe("getBrief", () => {
   it("requests brief with default UTC timezone when no arguments provided", async () => {
-    const brief = { date: "2026-08-14", timezone: "UTC", limit: 20, count: 0, completed: true, items: [] };
+    const brief = { date: "2026-08-14", timezone: "UTC", limit: 20, count: 0, completed: true, stories: [] };
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => brief }));
     await expect(getBrief()).resolves.toEqual(brief);
     expect(fetch).toHaveBeenCalledWith("http://localhost:5000/api/brief?timezone=UTC", { cache: "no-store" });
@@ -20,7 +20,7 @@ describe("getBrief", () => {
   });
 
   it("encodes custom timezone and includes date when provided", async () => {
-    const brief = { date: "2026-08-14", timezone: "Europe/Istanbul", limit: 5, count: 1, completed: false, items: [] };
+    const brief = { date: "2026-08-14", timezone: "Europe/Istanbul", limit: 5, count: 1, completed: false, stories: [] };
     vi.stubGlobal("fetch", vi.fn().mockResolvedValue({ ok: true, json: async () => brief }));
     await expect(getBrief("2026-08-14", "Europe/Istanbul")).resolves.toEqual(brief);
     expect(fetch).toHaveBeenCalledWith("http://localhost:5000/api/brief?timezone=Europe%2FIstanbul&date=2026-08-14", { cache: "no-store" });

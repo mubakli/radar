@@ -6,8 +6,10 @@ namespace Radar.Api.Features.Ingestion;
 
 public sealed record IngestionResult(bool Succeeded, int EntryCount, int InsertedCount, int SkippedCount, string? FailureCategory, string? Message, DateTimeOffset AttemptedAt);
 
-public sealed class FeedIngestionService(RadarDbContext db, IFeedFetcher fetcher)
+public sealed class FeedIngestionService(RadarDbContext db, IFeedFetcher fetcher, Features.Stories.StoryGroupingService grouping)
 {
+    public FeedIngestionService(RadarDbContext db, IFeedFetcher fetcher) : this(db, fetcher, new Features.Stories.StoryGroupingService(db)) { }
+
     public async Task<IngestionResult> FetchAsync(Guid sourceId, CancellationToken cancellationToken)
     {
         var source = await db.Sources.SingleOrDefaultAsync(x => x.Id == sourceId, cancellationToken);
@@ -25,7 +27,12 @@ public sealed class FeedIngestionService(RadarDbContext db, IFeedFetcher fetcher
             {
                 if (await db.SourceItems.AnyAsync(x => x.SourceId == sourceId && x.CanonicalLocator == entry.CanonicalLocator, cancellationToken)) continue;
                 db.SourceItems.Add(new SourceItem { SourceId = sourceId, CanonicalLocator = entry.CanonicalLocator, Url = entry.Url, Title = entry.Title!, PublishedAt = entry.PublishedAt, Author = entry.Author, Summary = entry.Summary, RawContent = entry.RawContent, ObservedAt = attemptedAt });
-                try { await db.SaveChangesAsync(cancellationToken); inserted++; }
+                try
+                {
+                    await db.SaveChangesAsync(cancellationToken);
+                    inserted++;
+                    await grouping.GroupUngroupedAsync(cancellationToken);
+                }
                 catch (DbUpdateException ex) when (IsUniqueViolation(ex)) { db.ChangeTracker.Clear(); }
             }
             return await Record(source, new IngestionResult(true, parsed.Entries.Count, inserted, parsed.SkippedCount, null, null, attemptedAt), cancellationToken);

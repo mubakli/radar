@@ -50,6 +50,7 @@ public sealed class Story
     public required string Summary { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public List<StorySourceItem> SourceItems { get; set; } = [];
+    public List<StoryCorrection> Corrections { get; set; } = [];
 }
 
 public sealed class StorySourceItem
@@ -57,9 +58,23 @@ public sealed class StorySourceItem
     public Guid StoryId { get; set; }
     public Guid SourceItemId { get; set; }
     public required string MembershipMethod { get; set; }
+    public string MembershipMethodVersion { get; set; } = "legacy-v1";
     public required string MembershipReason { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
     public Story Story { get; set; } = null!;
     public SourceItem SourceItem { get; set; } = null!;
+}
+
+public sealed class StoryCorrection
+{
+    public Guid Id { get; set; }
+    public required string Action { get; set; }
+    public Guid ResultStoryId { get; set; }
+    public Guid? PreviousStoryId { get; set; }
+    public Guid? SourceItemId { get; set; }
+    public required string Reason { get; set; }
+    public DateTimeOffset CreatedAt { get; set; }
+    public Story ResultStory { get; set; } = null!;
 }
 
 public sealed class ItemFeedback

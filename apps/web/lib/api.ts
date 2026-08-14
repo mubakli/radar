@@ -1,11 +1,12 @@
 export type StorySummary = { id: string; title: string; summary: string; createdAt: string };
-export type StorySourceItem = { id: string; title: string; canonicalLocator: string; observedAt: string; membershipMethod: string; membershipReason: string; source: { id: string; name: string; locator: string } };
-export type StoryDetail = StorySummary & { sourceItems: StorySourceItem[] };
+export type StorySourceItem = { id: string; title: string; canonicalLocator: string; observedAt: string; membershipMethod: string; membershipMethodVersion: string; membershipReason: string; source: { id: string; name: string; locator: string } };
+export type StoryCorrection = { action: string; previousStoryId?: string; sourceItemId?: string; reason: string; createdAt: string };
+export type StoryDetail = StorySummary & { sourceItems: StorySourceItem[]; corrections: StoryCorrection[] };
 export type FetchResult = { attemptedAt: string; succeeded: boolean; entryCount: number; insertedCount: number; skippedCount: number; failureCategory?: string; message?: string };
 export type Source = { id: string; name: string; locator: string; enabled: boolean; createdAt: string; lastFetch?: FetchResult };
 export type Feedback = { read: boolean; important: boolean; saved: boolean; notRelevant: boolean };
-export type BriefItem = { id: string; title: string; locator: string; publishedAt?: string; observedAt: string; sourceId: string; sourceName: string; sourcePriority: number; reason: string; feedback: Feedback };
-export type Brief = { date: string; timezone: string; limit: number; count: number; completed: boolean; items: BriefItem[] };
+export type BriefStory = { id: string; title: string; locator: string; publishedAt?: string; observedAt: string; feedbackSourceItemId: string; itemCount: number; sourceCount: number; sources: { id: string; name: string }[]; sourcePriority: number; reason: string; feedback: Feedback };
+export type Brief = { date: string; timezone: string; limit: number; count: number; completed: boolean; stories: BriefStory[] };
 export type SourceItem = { id: string; title: string; url?: string; publishedAt?: string; author?: string; summary?: string; observedAt: string; canonicalLocator: string };
 
 const apiBaseUrl = process.env.RADAR_API_URL ?? "http://localhost:5000";
@@ -25,3 +26,5 @@ export const fetchSource = (id: string) => request<FetchResult>(`/api/sources/${
 export const setSourceEnabled = (id: string, enabled: boolean) => request<{ id: string; enabled: boolean }>(`/api/sources/${id}/enabled`, { method: "PATCH", body: JSON.stringify({ enabled }), headers: { "Content-Type": "application/json" } });
 export const getBrief = (date?: string, timezone = "UTC") => request<Brief>(`/api/brief?timezone=${encodeURIComponent(timezone)}${date ? `&date=${date}` : ""}`);
 export const setFeedback = (id: string, action: "read" | "important" | "saved" | "not relevant", value: boolean) => request<Feedback>(`/api/brief/items/${id}/feedback`, { method: "PUT", body: JSON.stringify({ action, value }), headers: { "Content-Type": "application/json" } });
+export const mergeStories = (destinationId: string, sourceId: string, reason: string) => request<{ storyId: string }>(`/api/stories/${destinationId}/merge/${sourceId}`, { method: "POST", body: JSON.stringify({ reason }), headers: { "Content-Type": "application/json" } });
+export const splitStoryItem = (storyId: string, sourceItemId: string, reason: string) => request<{ storyId: string }>(`/api/stories/${storyId}/split/${sourceItemId}`, { method: "POST", body: JSON.stringify({ reason }), headers: { "Content-Type": "application/json" } });

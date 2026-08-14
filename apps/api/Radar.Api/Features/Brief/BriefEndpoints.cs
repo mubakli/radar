@@ -20,12 +20,24 @@ public static class BriefEndpoints
             var endLocal = localStart.AddDays(1);
             var end = new DateTimeOffset(endLocal, zone.GetUtcOffset(endLocal)).ToUniversalTime();
             var take = Math.Clamp(limit ?? options.Value.MaxItems, 1, options.Value.MaxItems);
-            var items = await db.SourceItems.AsNoTracking().Include(x => x.Source).Include(x => x.Feedback)
-                .Where(x => (x.PublishedAt ?? x.ObservedAt) >= start && (x.PublishedAt ?? x.ObservedAt) < end)
-                .OrderByDescending(x => x.Source.Priority).ThenByDescending(x => x.PublishedAt ?? x.ObservedAt).ThenBy(x => x.Id)
-                .Take(take).ToListAsync(ct);
-            var responseItems = items.Select(x => new BriefItemResponse(x.Id, x.Title, x.Url ?? x.CanonicalLocator, x.PublishedAt, x.ObservedAt, x.Source.Id, x.Source.Name, x.Source.Priority, $"Source priority {x.Source.Priority}; newest published item", new FeedbackResponse(x.Feedback?.Read ?? false, x.Feedback?.Important ?? false, x.Feedback?.Saved ?? false, x.Feedback?.NotRelevant ?? false))).ToList();
-            return Results.Ok(new BriefResponse(day, zone.Id, take, responseItems.Count, responseItems.All(x => x.Feedback.Read || x.Feedback.NotRelevant), responseItems));
+            var stories = await db.Stories.AsNoTracking()
+                .Include(x => x.SourceItems).ThenInclude(x => x.SourceItem).ThenInclude(x => x.Source)
+                .Include(x => x.SourceItems).ThenInclude(x => x.SourceItem).ThenInclude(x => x.Feedback)
+                .Where(x => x.SourceItems.Any(m => (m.SourceItem.PublishedAt ?? m.SourceItem.ObservedAt) >= start && (m.SourceItem.PublishedAt ?? m.SourceItem.ObservedAt) < end))
+                .ToListAsync(ct);
+            var responseStories = stories.Select(story =>
+                {
+                    var datedItems = story.SourceItems.Where(m => (m.SourceItem.PublishedAt ?? m.SourceItem.ObservedAt) >= start && (m.SourceItem.PublishedAt ?? m.SourceItem.ObservedAt) < end).ToList();
+                    var lead = datedItems.OrderByDescending(m => m.SourceItem.Source.Priority).ThenByDescending(m => m.SourceItem.PublishedAt ?? m.SourceItem.ObservedAt).ThenBy(m => m.SourceItemId).First();
+                    var sources = story.SourceItems.Select(m => new BriefSourceResponse(m.SourceItem.Source.Id, m.SourceItem.Source.Name)).Distinct().OrderBy(x => x.Name).ToList();
+                    return new BriefStoryResponse(story.Id, story.Title, $"/stories/{story.Id}", lead.SourceItem.PublishedAt, lead.SourceItem.ObservedAt, lead.SourceItemId,
+                        story.SourceItems.Count, sources.Count, sources, lead.SourceItem.Source.Priority,
+                        $"Source priority {lead.SourceItem.Source.Priority}; newest contributing item; {story.SourceItems.Count} item(s) from {sources.Count} source(s)",
+                        new FeedbackResponse(lead.SourceItem.Feedback?.Read ?? false, lead.SourceItem.Feedback?.Important ?? false, lead.SourceItem.Feedback?.Saved ?? false, lead.SourceItem.Feedback?.NotRelevant ?? false));
+                })
+                .OrderByDescending(x => x.SourcePriority).ThenByDescending(x => x.PublishedAt ?? x.ObservedAt).ThenBy(x => x.Id)
+                .Take(take).ToList();
+            return Results.Ok(new BriefResponse(day, zone.Id, take, responseStories.Count, responseStories.All(x => x.Feedback.Read || x.Feedback.NotRelevant), responseStories));
         });
         group.MapPut("/items/{id:guid}/feedback", async (Guid id, FeedbackRequest request, RadarDbContext db, CancellationToken ct) =>
         {
@@ -46,5 +58,6 @@ public static class BriefEndpoints
 
 public sealed record FeedbackRequest(string Action, bool Value = true);
 public sealed record FeedbackResponse(bool Read, bool Important, bool Saved, bool NotRelevant);
-public sealed record BriefItemResponse(Guid Id, string Title, string Locator, DateTimeOffset? PublishedAt, DateTimeOffset ObservedAt, Guid SourceId, string SourceName, int SourcePriority, string Reason, FeedbackResponse Feedback);
-public sealed record BriefResponse(DateOnly Date, string Timezone, int Limit, int Count, bool Completed, IReadOnlyList<BriefItemResponse> Items);
+public sealed record BriefSourceResponse(Guid Id, string Name);
+public sealed record BriefStoryResponse(Guid Id, string Title, string Locator, DateTimeOffset? PublishedAt, DateTimeOffset ObservedAt, Guid FeedbackSourceItemId, int ItemCount, int SourceCount, IReadOnlyList<BriefSourceResponse> Sources, int SourcePriority, string Reason, FeedbackResponse Feedback);
+public sealed record BriefResponse(DateOnly Date, string Timezone, int Limit, int Count, bool Completed, IReadOnlyList<BriefStoryResponse> Stories);

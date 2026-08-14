@@ -28,8 +28,10 @@ public sealed class FeedIngestionServiceTests : IAsyncLifetime
         await using var db = await NewDatabase(); var source = await AddSource(db);
         var service = new FeedIngestionService(db, fetcher);
         var first = await service.FetchAsync(source.Id, CancellationToken.None);
+        var firstMemberships = await db.StorySourceItems.AsNoTracking().OrderBy(x => x.SourceItemId).Select(x => new { x.SourceItemId, x.StoryId }).ToListAsync();
         var second = await service.FetchAsync(source.Id, CancellationToken.None);
-        Assert.Equal(2, first.InsertedCount); Assert.Equal(0, second.InsertedCount); Assert.Equal(2, await db.SourceItems.CountAsync()); Assert.Equal(2, await db.FetchAttempts.CountAsync(x => x.Succeeded));
+        var secondMemberships = await db.StorySourceItems.AsNoTracking().OrderBy(x => x.SourceItemId).Select(x => new { x.SourceItemId, x.StoryId }).ToListAsync();
+        Assert.Equal(2, first.InsertedCount); Assert.Equal(0, second.InsertedCount); Assert.Equal(firstMemberships, secondMemberships); Assert.Equal(2, secondMemberships.Count); Assert.Equal(2, await db.SourceItems.CountAsync()); Assert.Equal(2, await db.FetchAttempts.CountAsync(x => x.Succeeded));
     }
 
     [Fact]

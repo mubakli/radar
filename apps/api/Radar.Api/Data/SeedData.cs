@@ -16,9 +16,14 @@ public static class SeedData
             source = new Source
             {
                 Id = SourceId, Name = "Radar Development Fixture", Locator = "fixture://radar/milestone-1",
+                Priority = 100,
                 CreatedAt = new DateTimeOffset(2026, 8, 14, 0, 0, 0, TimeSpan.Zero)
             };
             db.Sources.Add(source);
+        }
+        else
+        {
+            source.Priority = 100;
         }
 
         var item = await db.SourceItems.SingleOrDefaultAsync(x => x.Id == SourceItemId, cancellationToken);
@@ -46,7 +51,7 @@ public static class SeedData
             db.Stories.Add(story);
         }
 
-        var membership = await db.StorySourceItems.SingleOrDefaultAsync(x => x.StoryId == StoryId && x.SourceItemId == SourceItemId, cancellationToken);
+        var membership = await db.StorySourceItems.SingleOrDefaultAsync(x => x.SourceItemId == SourceItemId, cancellationToken);
         if (membership is null)
         {
             membership = new StorySourceItem
@@ -59,7 +64,7 @@ public static class SeedData
             };
             db.StorySourceItems.Add(membership);
         }
-        else if (membership.MembershipMethod == "fixture")
+        else if (membership.StoryId == StoryId && membership.MembershipMethod == "fixture")
         {
             membership.MembershipMethodVersion = "fixture-v1";
         }

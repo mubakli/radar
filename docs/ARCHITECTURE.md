@@ -36,7 +36,8 @@ avoid reading another boundary's tables merely because it is convenient.
 3. **Collect:** adapters fetch active and probation Sources within distinct
    budgets and platform rules and record attempts.
 4. **Preserve:** store the original identity and recoverable representation.
-5. **Normalise:** derive common metadata without erasing source-specific data.
+5. **Normalise:** derive common metadata without erasing source-specific data;
+   manual collection records a bounded fetch attempt and its outcome.
 6. **Deterministic deduplication:** canonical locators, platform IDs, hashes, and
    explicit redirects remove exact duplicates cheaply.
 7. **Story candidate generation:** time, linked entities, lexical similarity, shared

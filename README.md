@@ -27,3 +27,32 @@ a bounded and auditable discovery loop.
 This repository deliberately avoids a single all-purpose context file. Each
 document owns one kind of durable knowledge; temporary work belongs in an issue
 or a short-lived feature specification.
+
+## Milestone 1 quickstart
+
+Requirements: .NET SDK 10, Node.js 22 with npm, Docker, and Docker Compose.
+
+```sh
+make db-up
+dotnet tool install --global dotnet-ef --version 10.0.0
+make migrate
+make seed
+make dev
+```
+
+Open `http://localhost:3000` for the web app or
+`http://localhost:5000/api/stories` for the story list. `RADAR_API_URL` in
+`apps/web/.env.local` can change the API address;
+the default is `http://localhost:5000`.
+
+Run `make verify` for backend restore/build/unit and PostgreSQL integration
+tests, frontend dependency verification/lint/typecheck/Vitest, and the
+Playwright smoke test. Stop local PostgreSQL with `make db-down`.
+
+## Repository map
+
+- `apps/api/Radar.Api`: ASP.NET Core API, domain persistence, migrations, and fixture seed.
+- `apps/web`: Next.js App Router UI.
+- `tests`: unit and real-PostgreSQL API integration tests.
+- `infra/compose.yaml`: local PostgreSQL 18.
+- `docs/CURRENT.md`: concise milestone handoff.

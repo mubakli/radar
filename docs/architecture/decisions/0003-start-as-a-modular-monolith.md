@@ -1,6 +1,6 @@
 # ADR-0003: Start as a modular monolith
 
-- Status: Proposed
+- Status: Accepted
 - Date: 2026-08-14
 - Owners: Radar maintainer
 - Supersedes: none
@@ -21,8 +21,7 @@ relational database. Enforce logical module ownership and explicit application
 contracts in code. Do not let shared deployment justify arbitrary cross-module
 table access.
 
-This decision remains proposed until the implementation stack and first feature
-slice are selected.
+The initial stack and first vertical slice confirm that this shape is suitable.
 
 ## Consequences
 
@@ -57,4 +56,3 @@ Accept after choosing the implementation stack and confirming the initial slice
 fits this shape. Revisit module extraction only when measured throughput,
 failure isolation, security, deployment cadence, or independent ownership
 cannot be handled reasonably within the monolith.
-

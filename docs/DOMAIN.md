@@ -58,6 +58,11 @@ create one database table or class per term.
    most convenient source.
 5. Source authority is evaluated per claim. “Official” is strong evidence for
    what a project announced, but not automatically for performance or adoption.
+5a. A Source Item's `PublishedAt` is the publication time reported by its Source
+   and may be absent; `ObservedAt` is when Radar observed it.
+5b. Missing author and summary values remain absent rather than being invented.
+5c. Deterministic exact identity is Source-scoped and uses a stable canonical
+   locator when available; normalization never overwrites the raw observation.
 
 ### Story formation
 

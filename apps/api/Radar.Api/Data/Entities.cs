@@ -6,6 +6,7 @@ public sealed class Source
     public required string Name { get; set; }
     public required string Locator { get; set; }
     public bool Enabled { get; set; } = true;
+    public int Priority { get; set; }
     public DateTimeOffset CreatedAt { get; set; }
     public List<SourceItem> Items { get; set; } = [];
     public List<FetchAttempt> FetchAttempts { get; set; } = [];
@@ -25,6 +26,7 @@ public sealed class SourceItem
     public DateTimeOffset ObservedAt { get; set; }
     public Source Source { get; set; } = null!;
     public List<StorySourceItem> StoryMemberships { get; set; } = [];
+    public ItemFeedback? Feedback { get; set; }
 }
 
 public sealed class FetchAttempt
@@ -57,5 +59,16 @@ public sealed class StorySourceItem
     public required string MembershipMethod { get; set; }
     public required string MembershipReason { get; set; }
     public Story Story { get; set; } = null!;
+    public SourceItem SourceItem { get; set; } = null!;
+}
+
+public sealed class ItemFeedback
+{
+    public Guid SourceItemId { get; set; }
+    public bool Read { get; set; }
+    public bool Important { get; set; }
+    public bool Saved { get; set; }
+    public bool NotRelevant { get; set; }
+    public DateTimeOffset UpdatedAt { get; set; }
     public SourceItem SourceItem { get; set; } = null!;
 }

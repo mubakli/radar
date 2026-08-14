@@ -9,6 +9,7 @@ public sealed class RadarDbContext(DbContextOptions<RadarDbContext> options) : D
     public DbSet<Story> Stories => Set<Story>();
     public DbSet<StorySourceItem> StorySourceItems => Set<StorySourceItem>();
     public DbSet<FetchAttempt> FetchAttempts => Set<FetchAttempt>();
+    public DbSet<ItemFeedback> ItemFeedback => Set<ItemFeedback>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -19,6 +20,7 @@ public sealed class RadarDbContext(DbContextOptions<RadarDbContext> options) : D
             entity.Property(x => x.Name).HasMaxLength(200).IsRequired();
             entity.Property(x => x.Locator).HasMaxLength(2_000).IsRequired();
             entity.Property(x => x.Enabled).HasDefaultValue(true).ValueGeneratedNever();
+            entity.Property(x => x.Priority).HasDefaultValue(0).ValueGeneratedNever();
         });
 
         modelBuilder.Entity<SourceItem>(entity =>
@@ -57,6 +59,12 @@ public sealed class RadarDbContext(DbContextOptions<RadarDbContext> options) : D
             entity.Property(x => x.MembershipReason).HasMaxLength(1_000).IsRequired();
             entity.HasOne(x => x.Story).WithMany(x => x.SourceItems).HasForeignKey(x => x.StoryId).OnDelete(DeleteBehavior.Cascade);
             entity.HasOne(x => x.SourceItem).WithMany(x => x.StoryMemberships).HasForeignKey(x => x.SourceItemId).OnDelete(DeleteBehavior.Restrict);
+        });
+
+        modelBuilder.Entity<ItemFeedback>(entity =>
+        {
+            entity.HasKey(x => x.SourceItemId);
+            entity.HasOne(x => x.SourceItem).WithOne(x => x.Feedback).HasForeignKey<ItemFeedback>(x => x.SourceItemId).OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

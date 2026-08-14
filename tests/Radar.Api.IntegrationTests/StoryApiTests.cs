@@ -84,8 +84,45 @@ public sealed class StoryApiTests : IAsyncLifetime
         Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
     }
 
+    [Fact]
+    public async Task Daily_brief_is_bounded_and_feedback_survives_repeated_reads()
+    {
+        var brief = await client.GetFromJsonAsync<BriefResponse>("/api/brief?date=2026-08-14&timezone=UTC&limit=1");
+        Assert.NotNull(brief);
+        Assert.Equal(1, brief!.Count);
+        Assert.Equal(1, brief.Limit);
+        Assert.False(brief.Completed);
+
+        var feedback = await client.PutAsJsonAsync($"/api/brief/items/{SeedData.SourceItemId}/feedback", new { action = "read", value = true });
+        Assert.Equal(HttpStatusCode.OK, feedback.StatusCode);
+        var repeat = await client.PutAsJsonAsync($"/api/brief/items/{SeedData.SourceItemId}/feedback", new { action = "read", value = true });
+        Assert.Equal(HttpStatusCode.OK, repeat.StatusCode);
+
+        var reopened = await client.GetFromJsonAsync<BriefResponse>("/api/brief?date=2026-08-14&timezone=UTC&limit=1");
+        Assert.True(reopened!.Items[0].Feedback.Read);
+        Assert.True(reopened.Completed);
+    }
+
+    [Fact]
+    public async Task Invalid_timezone_falls_back_to_UTC()
+    {
+        var response = await client.GetFromJsonAsync<BriefResponse>("/api/brief?date=2026-08-14&timezone=Invalid/Zone&limit=1");
+        Assert.NotNull(response);
+        Assert.Equal("UTC", response!.Timezone);
+    }
+
+    [Fact]
+    public async Task Feedback_to_nonexistent_item_returns_not_found()
+    {
+        var response = await client.PutAsJsonAsync($"/api/brief/items/{Guid.NewGuid()}/feedback", new { action = "read", value = true });
+        Assert.Equal(HttpStatusCode.NotFound, response.StatusCode);
+    }
+
     private sealed record StoryListResponse(Guid Id, string Title, string Summary, DateTimeOffset CreatedAt);
     private sealed record StoryDetailResponse(Guid Id, string Title, string Summary, DateTimeOffset CreatedAt, List<StorySourceItemResponse> SourceItems);
     private sealed record StorySourceItemResponse(Guid Id, string Title, string CanonicalLocator, DateTimeOffset ObservedAt, string MembershipMethod, string MembershipReason, SourceResponse Source);
     private sealed record SourceResponse(Guid Id, string Name, string Locator);
+    private sealed record BriefResponse(DateOnly Date, string Timezone, int Limit, int Count, bool Completed, List<BriefItemResponse> Items);
+    private sealed record BriefItemResponse(Guid Id, string Title, string Locator, DateTimeOffset? PublishedAt, DateTimeOffset ObservedAt, Guid SourceId, string SourceName, int SourcePriority, string Reason, FeedbackResponse Feedback);
+    private sealed record FeedbackResponse(bool Read, bool Important, bool Saved, bool NotRelevant);
 }

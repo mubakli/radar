@@ -55,4 +55,4 @@ Playwright smoke test. Stop local PostgreSQL with `make db-down`.
 - `apps/web`: Next.js App Router UI.
 - `tests`: unit and real-PostgreSQL API integration tests.
 - `infra/compose.yaml`: local PostgreSQL 18.
-- `docs/CURRENT.md`: concise milestone handoff.
+- Milestone handoff is reported in the delivery change; temporary feature context lives under `docs/features/` and is deleted after reconciliation.

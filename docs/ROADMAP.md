@@ -127,7 +127,7 @@ Agent yalnızca ürün özeti, bu milestone specification'ı, repository çalı�
 
 ### Project Memory Update
 
-Gerekli. Ürün amacı, minimum domain sözlüğü, çalışma/doğrulama komutları, repository haritası ve gerçekten alınmış mimari kararlar yazılır. `CURRENT.md` benzeri kısa durum dosyası oluşturulur; append-only günlük yapılmaz.
+Gerekli. Ürün amacı, minimum domain sözlüğü, çalışma/doğrulama komutları, repository haritası ve gerçekten alınmış mimari kararlar kendi durable owner belgelerine yazılır. Non-trivial delivery context'i gerekiyorsa `docs/features/` altında geçici spec olarak tutulur; tamamlanınca silinir.
 
 ### Exit Criteria
 
@@ -1209,9 +1209,8 @@ Repository başladığında minimum yapı şu sorumlulukları taşımalıdır:
 - `docs/DOMAIN.md`: yalnızca kalıcı kavramlar ve invariants
 - `docs/DISCOVERY.md`: open-web discovery, aday/source lifecycle ve exploration sınırları
 - `docs/ARCHITECTURE.md`: yüksek seviyeli sistem sınırları ve repository haritası
-- `docs/adr/`: pahalı veya geri dönüşü zor kararlar
-- `docs/status/CURRENT.md`: en fazla bir sayfalık mevcut durum; her milestone sonunda **yeniden yazılır**, büyütülmez
-- `docs/work/Mxx.md`: yalnızca aktif milestone'un geçici feature specification'ı
+- `docs/architecture/decisions/`: pahalı veya geri dönüşü zor kararlar
+- `docs/features/`: yalnızca aktif ve non-trivial milestone'un geçici feature specification'ı
 
 Tamamlanan milestone spec'i kalıcı bilgi için arşiv yapılmamalıdır. Gerekli gerçekler PRODUCT/DOMAIN/ARCHITECTURE/ADR'ye aktarılır; geri kalanı testler, kod ve Git geçmişinde kalır. Aktarım sonrası geçici spec silinir ve yeni milestone spec'i oluşturulur.
 
@@ -1220,7 +1219,7 @@ Tamamlanan milestone spec'i kalıcı bilgi için arşiv yapılmamalıdır. Gerek
 Agent'a bütün proje belgeleri verilmez. Varsayılan paket:
 
 1. `AGENTS.md`
-2. Aktif `docs/work/Mxx.md`
+2. Aktif `docs/features/<feature-slug>.md`
 3. Spec'in açıkça işaret ettiği PRODUCT/DOMAIN/ARCHITECTURE bölümleri
 4. Discovery görevi ise yalnızca ilgili `DISCOVERY.md` bölümleri
 5. Yalnızca ilgili ADR'ler
@@ -1239,7 +1238,7 @@ Milestone içinde agent gerektiğinde şu sırayla çalışır:
 4. Otomatik verification'ı çalıştır.
 5. Kapsam dışı değişiklikleri geri çıkar.
 6. Project memory gereksinimini değerlendir.
-7. `CURRENT.md` dosyasını sabit boyutta yeniden yaz.
+7. Durable owner belgelerini reconcile et ve tamamlanan geçici feature spec'ini sil.
 
 Tek milestone yeni bir bağımsız subsystem, birden fazla belirsiz domain kararı ve geniş UI yeniden tasarımı gerektiriyorsa büyüktür; yeniden bölünmelidir.
 
@@ -1268,7 +1267,8 @@ Kütüphane seçimi, küçük refactor veya her implementation detayı için ADR
 
 ## 6. Clean handoff
 
-Her milestone sonunda `CURRENT.md` şu beş başlıkla yeniden yazılır:
+Her milestone sonunda handoff şu beş başlığı içermelidir; bu bilgi için ayrı bir
+durum dosyası oluşturulmaz:
 
 1. Çalışan capability
 2. Ana entry point'ler
@@ -1281,7 +1281,6 @@ Conversation özeti handoff sayılmaz. Handoff repository'ye commit edilmeden mi
 ## 7. Stale context prevention
 
 - Aynı bilgi birden çok belgede kopyalanmaz; tek owner dosyası olur.
-- `CURRENT.md` append edilmez, değiştirilir.
 - Aktif milestone bitince geçici spec silinir.
 - Değişmiş contract'ı temsil eden eski golden fixture güncellenmeden test geçemez.
 - Kodda doğrulanabilen ayrıntı documentation'a kopyalanmaz.
@@ -1298,7 +1297,7 @@ Her milestone sonunda senin kontrolün şu sırada olmalıdır:
 2. **Exit Criteria:** Maddeleri tek tek PASS/FAIL olarak işaretle.
 3. **Ürün kontrolü:** “Kullanıcı açısından çıktı” bölümündeki akışı kendin uygula.
 4. **Scope kontrolü:** Out of Scope maddelerinin yanlışlıkla eklenmediğini diff üzerinden kontrol et.
-5. **Project memory kontrolü:** Sadece kalıcı kararların taşındığını ve `CURRENT.md` dosyasının büyümediğini kontrol et.
+5. **Project memory kontrolü:** Sadece kalıcı kararların taşındığını ve aktif feature spec'inin tamamlanınca silindiğini kontrol et.
 6. **Risk checkpoint:** İlgili phase gate geldiyse gerçek kullanım yapmadan sonraki phase'e geçme.
 
 Bu altı adım geçmeden sonraki milestone agent'a verilmemelidir.

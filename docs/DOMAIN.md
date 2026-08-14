@@ -112,13 +112,26 @@ create one database table or class per term.
 23. Relevance, importance, novelty, confidence, and source quality remain
     conceptually distinct even if a presentation score combines them.
 
+### Finite daily review
+
+24. A daily brief is a bounded, date-scoped view of observed Source Items; items
+    outside its date and configured limit are not silently included.
+25. The initial brief order is deterministic: Source priority first, then the
+    reported publication time, with observation time used when publication time
+    is absent.
+26. `read`, `important`, `saved`, and `not relevant` are explicit item feedback
+    states. Repeating an action is idempotent, and feedback remains attached to
+    the observed item when the same daily brief is reopened.
+27. A brief is complete only when every presented item is marked `read` or
+    `not relevant`; saving or marking an item important does not imply review.
+
 ### AI-derived results
 
-24. AI-derived classifications, clusters, summaries, and hypotheses record the
+28. AI-derived classifications, clusters, summaries, and hypotheses record the
     producing policy/model version, input references, timestamp, confidence or
     uncertainty, and terminal failure state.
-25. AI unavailability cannot corrupt collection or erase existing evidence.
-26. Hidden chain-of-thought is neither required nor stored; concise rationale,
+29. AI unavailability cannot corrupt collection or erase existing evidence.
+30. Hidden chain-of-thought is neither required nor stored; concise rationale,
     evidence references, and structured outputs are sufficient for audit.
 
 ## Modelling cautions

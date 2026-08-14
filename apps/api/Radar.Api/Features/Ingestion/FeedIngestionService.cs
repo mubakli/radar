@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using Npgsql;
 using Radar.Api.Data;
 
 namespace Radar.Api.Features.Ingestion;
@@ -25,12 +26,22 @@ public sealed class FeedIngestionService(RadarDbContext db, IFeedFetcher fetcher
                 if (await db.SourceItems.AnyAsync(x => x.SourceId == sourceId && x.CanonicalLocator == entry.CanonicalLocator, cancellationToken)) continue;
                 db.SourceItems.Add(new SourceItem { SourceId = sourceId, CanonicalLocator = entry.CanonicalLocator, Url = entry.Url, Title = entry.Title!, PublishedAt = entry.PublishedAt, Author = entry.Author, Summary = entry.Summary, RawContent = entry.RawContent, ObservedAt = attemptedAt });
                 try { await db.SaveChangesAsync(cancellationToken); inserted++; }
-                catch (DbUpdateException) { db.ChangeTracker.Clear(); }
+                catch (DbUpdateException ex) when (IsUniqueViolation(ex)) { db.ChangeTracker.Clear(); }
             }
             return await Record(source, new IngestionResult(true, parsed.Entries.Count, inserted, parsed.SkippedCount, null, null, attemptedAt), cancellationToken);
         }
         catch (FeedFetchException ex) { return await Record(source, new IngestionResult(false, 0, 0, 0, ex.Category, ex.Message, attemptedAt), cancellationToken); }
         catch (FeedParseException ex) { return await Record(source, new IngestionResult(false, 0, 0, 0, "parse", ex.Message, attemptedAt), cancellationToken); }
+        catch (OperationCanceledException)
+        {
+            await RecordFailureSafely(source, attemptedAt, "cancelled", "Fetch was cancelled.");
+            throw;
+        }
+        catch (Exception ex)
+        {
+            await RecordFailureSafely(source, attemptedAt, "unexpected", ex.Message);
+            throw;
+        }
     }
 
     private async Task<IngestionResult> Record(Source source, IngestionResult result, CancellationToken cancellationToken)
@@ -39,4 +50,13 @@ public sealed class FeedIngestionService(RadarDbContext db, IFeedFetcher fetcher
         await db.SaveChangesAsync(cancellationToken);
         return result;
     }
+
+    private async Task RecordFailureSafely(Source source, DateTimeOffset attemptedAt, string category, string message)
+    {
+        db.ChangeTracker.Clear();
+        try { await Record(source, new IngestionResult(false, 0, 0, 0, category, message, attemptedAt), CancellationToken.None); }
+        catch { /* Preserve the original failure when persistence itself is unavailable. */ }
+    }
+
+    private static bool IsUniqueViolation(DbUpdateException exception) => exception.InnerException is PostgresException { SqlState: PostgresErrorCodes.UniqueViolation };
 }
